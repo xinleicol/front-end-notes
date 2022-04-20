@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小球碰撞墙壁反弹</title>
+    <style type="text/css">
+        canvas { border: 1px solid black; }
+    </style>
+</head>
+<body>
+    <canvas width="800" height="600" id="myCanvas"></canvas>
+</body>
+
+<script>
+    const canvas = document.getElementById('myCanvas');
+    const context = canvas.getContext('2d');
+
+    const balls = [];
+    let timer = null;
+    let lastDebounce = new Date();
+
+    function Ball(x, y, ox, oy){
+        this.x = x;
+        this.y = y;
+        this.ox = ox;
+        this.oy = oy;
+        this.color = '#333';
+        this.size = 10;
+    }
+
+    Ball.prototype.deal = function(ax=0, ay=0){
+        if(this.x > canvas.clientWidth || this.x < 0){
+            this.ox = - this.ox;
+        }
+        if(this.y > canvas.clientHeight || this.y < 0){
+            this.oy = - this.oy;
+        }
+    }
+    
+    Ball.prototype.update = function () { 
+        context.fillStyle = this.color;
+        context.save();
+        context.beginPath();
+        context.arc(this.x, this.y, this.size, 0, Math.PI*2, false);
+        context.fill();
+        context.restore();
+        this.deal();
+        this.x += this.ox;
+        this.y += this.oy;
+    }
+
+
+    canvas.addEventListener('mousedown', function (e) { 
+        balls.splice(0);
+
+        for(let i=0; i<Math.random()*100+50; i++){
+            const ball = new Ball(e.clientX, e.clientY, -4+Math.random()*8, -4+Math.random()*8);
+            ball.color = `rgba(${Math.random()*255}, ${Math.random()*255}, ${Math.random()*255}, ${Math.random()+0.6})`;
+            ball.size = 10+Math.random()*10;
+            balls.push(ball);
+        }
+
+        clearInterval(timer);
+
+        timer = setInterval(function () {
+            context.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+            balls.forEach(ball => {
+                ball.update();
+            })
+            
+        }, 10)
+
+    })
+
+    
+    
+</script>
+</html>
